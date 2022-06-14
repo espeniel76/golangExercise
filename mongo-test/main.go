@@ -6,18 +6,18 @@ import (
 )
 
 func main() {
-	fmt.Println("##### connections #####")
-	crud.MainConnect()
+	// fmt.Println("##### connections #####")
+	// crud.MainConnect()
 
 	fmt.Println("##### inserts #####")
 	crud.MainInsert()
 
-	fmt.Println("##### finds #####")
-	crud.MainFind()
+	// fmt.Println("##### finds #####")
+	// crud.MainFind()
 
-	fmt.Println("##### updates #####")
-	crud.MainUpdate()
+	// fmt.Println("##### updates #####")
+	// crud.MainUpdate()
 
-	fmt.Println("##### deletes #####")
-	crud.DeleteMain()
+	// fmt.Println("##### deletes #####")
+	// crud.DeleteMain()
 }
