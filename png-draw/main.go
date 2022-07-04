@@ -1,46 +1,54 @@
 package main
 
 import (
+	"fmt"
 	"image"
+	"image/color"
 	"image/draw"
 	"image/jpeg"
 	"image/png"
-	"log"
 	"os"
 )
 
 func main() {
-	image1, err := os.Open("jellyfish.jpg")
-	if err != nil {
-		log.Fatalf("failed to open: %s", err)
-	}
 
-	first, err := jpeg.Decode(image1)
-	if err != nil {
-		log.Fatalf("failed to decode: %s", err)
-	}
-	defer image1.Close()
+	go EduceImage("pokeball.png", "#B8F500")
+}
 
-	image2, err := os.Open("pokeball.png")
-	if err != nil {
-		log.Fatalf("failed to open: %s", err)
-	}
-	second, err := png.Decode(image2)
-	if err != nil {
-		log.Fatalf("failed to decode: %s", err)
-	}
-	defer image2.Close()
+func EduceImage(imgSrc string, hexValue string) {
+	imgSource, _ := os.Open(imgSrc)
+	imgLayer, _ := png.Decode(imgSource)
+	defer imgSource.Close()
 
-	offset := image.Pt(300, 200)
-	b := first.Bounds()
-	image3 := image.NewRGBA(b)
-	draw.Draw(image3, b, first, image.ZP, draw.Src)
-	draw.Draw(image3, second.Bounds().Add(offset), second, image.ZP, draw.Over)
+	b := imgLayer.Bounds()
+	imgResult := image.NewRGBA(b)
 
-	third, err := os.Create("result.jpg")
-	if err != nil {
-		log.Fatalf("failed to create: %s", err)
-	}
-	jpeg.Encode(third, image3, &jpeg.Options{jpeg.DefaultQuality})
+	m := image.NewRGBA(b)
+	colorRgba, _ := parseHexColor(hexValue)
+	draw.Draw(m, m.Bounds(), &image.Uniform{colorRgba}, image.Point{}, draw.Src)
+
+	draw.Draw(imgResult, b, m, image.Point{}, draw.Src)
+	draw.Draw(imgResult, b, imgLayer, image.Point{}, draw.Over)
+
+	third, _ := os.Create("imgResult.jpg")
+	jpeg.Encode(third, imgResult, &jpeg.Options{90})
 	defer third.Close()
+}
+
+func parseHexColor(s string) (c color.RGBA, err error) {
+	c.A = 0xff
+	switch len(s) {
+	case 7:
+		_, err = fmt.Sscanf(s, "#%02x%02x%02x", &c.R, &c.G, &c.B)
+	case 4:
+		_, err = fmt.Sscanf(s, "#%1x%1x%1x", &c.R, &c.G, &c.B)
+		// Double the hex digits:
+		c.R *= 17
+		c.G *= 17
+		c.B *= 17
+	default:
+		err = fmt.Errorf("invalid length, must be 7 or 4")
+
+	}
+	return
 }
